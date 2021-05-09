@@ -1,9 +1,13 @@
 body {
+  /* min-height: 100vh; */
+}
+
+.center {
   display: flex;
   align-items: center;
-  justify-content: center;
   min-height: 100vh;
-  background: #27ae60;
+  justify-content: center;
+  background: #1b262c;
   font-family: "proxima-nova", "Source Sans Pro", sans-serif;
   font-size: 1em;
   letter-spacing: 0.1px;
@@ -14,7 +18,7 @@ body {
 }
 
 #frame {
-  width: 95%;
+  width: 100%;
   min-width: 360px;
   max-width: 1000px;
   height: 92vh;
@@ -32,7 +36,7 @@ body {
   float: left;
   min-width: 280px;
   max-width: 340px;
-  width: 29%;
+  width: 25%;
   height: 100%;
   background: #2c3e50;
   color: #f5f5f5;
@@ -420,6 +424,7 @@ body {
   background-color: #243140;
 }
 #frame #sidepanel #contacts ul li.contact {
+  list-style-type: none;
   position: relative;
   padding: 10px 0 15px 0;
   font-size: 0.9em;
@@ -688,7 +693,7 @@ body {
   float: left;
   border: none;
   width: calc(100% - 90px);
-  padding: 11px 32px 10px 8px;
+  padding: 11px 32px 15px 8px;
   font-size: 0.8em;
   color: #32465a;
 }

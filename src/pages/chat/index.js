@@ -62,7 +62,7 @@ const Chat = () => {
 
 
     return (
-        <div className="bodychat" >
+        <div className="center" >
             <div id="frame">
                 <div id="sidepanel">
                     <div id="profile">
