@@ -1,9 +1,12 @@
 import React, { useState } from 'react'
 import { useHistory } from 'react-router'
+import {API_URL} from '../../config/api';
+import useToken from '../../utils/useToken';
 
 
-const Login = ({ setToken }) => {
+const Login = () => {
     const history = useHistory()
+    const {setToken} = useToken()
 
     const [login, setLogin] = useState({
         username: 'bollox@gmail.com',
@@ -16,7 +19,7 @@ const Login = ({ setToken }) => {
 
     const handleLogin = (e) => {
         e.preventDefault()
-        fetch(`http://localhost:5000/api/v1/login`, {
+        fetch(`${API_URL}/api/v1/login`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -25,8 +28,8 @@ const Login = ({ setToken }) => {
         }).then(res => res.json())
             .then((res) => {
                 console.log('berhasil login', res)
-                localStorage.setItem('userlogin', JSON.stringify(res.data))
-                // setToken(res.data)
+                // localStorage.setItem('userlogin', JSON.stringify(res.data))
+                setToken(res.data)
                 history.replace('/chat')
             })
             .catch((err) => {

@@ -8,7 +8,7 @@ const useToken = () => {
     }
     const [token, setToken] = useState(getToken())
 
-    const storeToken = (userToken) => {
+    const storeToken = userToken => {
         localStorage.setItem('userlogin', JSON.stringify(userToken))
         setToken(userToken.token)
     }

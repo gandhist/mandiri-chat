@@ -1,10 +1,9 @@
 import React, { useEffect, useState, useRef } from 'react'
 import Chatting from "../Chatting";
 import IO from "socket.io-client";
-const dotenv = require('dotenv');
-// get config vars
-dotenv.config();
-const ENDPOINT = "http://localhost:5000";
+import { SOCKET_URL } from '../../../config/api';
+
+
 let socket;
 const local = JSON.parse(localStorage.getItem('userlogin'))
 
@@ -15,13 +14,13 @@ const ContentChatting = ({ id, name, picture }) => {
 
 
     const scrollToBottom = () => {
-        const scroll = messagesEndRef.current.scrollHeight - messagesEndRef.current.clientHeight;
+        const scroll = messagesEndRef.current?.scrollHeight - messagesEndRef.current?.clientHeight;
         messagesEndRef.current.scrollTo(0, scroll)
     };
 
     useEffect(() => {
         const getListMessage = () => {
-            fetch(`http://localhost:5000/api/v1/getChat/${id}`, {
+            fetch(`${SOCKET_URL}/api/v1/getChat/${id}`, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${local.token}`,
@@ -40,7 +39,7 @@ const ContentChatting = ({ id, name, picture }) => {
     }, [id])
 
     useEffect(() => {
-        socket = IO(ENDPOINT, {
+        socket = IO(SOCKET_URL, {
             auth: {
                 jwtToken: local?.token
             }
@@ -49,11 +48,12 @@ const ContentChatting = ({ id, name, picture }) => {
     }, [id])
 
     useEffect(() => {
-        const getMessage = socket.on('message', message => {
+        socket.on('message', message => {
             setListChats(msgs => [...msgs, message])
             scrollToBottom()
         })
-        return () => getMessage();
+        return () => {};
+        // return () => getMessage();
     }, [])
 
 
@@ -80,9 +80,8 @@ const ContentChatting = ({ id, name, picture }) => {
                     {
                         listChats.map((item, index) => {
                             const isMe = local.id === parseInt(item.send_by) ? true : false;
-
                             const myPic = "http://emilcarlsson.se/assets/mikeross.png"
-                            return <Chatting key={index} isMe={isMe} picture={isMe ? myPic : picture} message={item.message} />
+                            return <Chatting key={index} isMe={isMe} picture={isMe ? myPic : picture} message={item.message} time={item.time} />
                         })
                     }
                 </ul>
