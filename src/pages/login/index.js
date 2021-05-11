@@ -19,7 +19,7 @@ const Login = () => {
 
     const handleLogin = (e) => {
         e.preventDefault()
-        fetch(`${API_URL}/api/v1/login`, {
+        fetch(`${API_URL}/login`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -27,15 +27,16 @@ const Login = () => {
             body: JSON.stringify(login)
         }).then(res => res.json())
             .then((res) => {
-                console.log('berhasil login', res)
-                // localStorage.setItem('userlogin', JSON.stringify(res.data))
-                setToken(res.data)
-                history.replace('/chat')
+                if(res.status){
+                    setToken(res.data)
+                    history.replace('/chat')
+                }else{
+                    alert(res.message)
+                }
             })
             .catch((err) => {
                 console.log('err', err)
             })
-        console.log('let\'s login', login)
     }
     return (
         <div style={{ height: "100vh", background: "#2d405f" }}>
@@ -48,7 +49,7 @@ const Login = () => {
                             <div className="mb-3">
                                 <label htmlFor="username" className="form-label">Userlogin</label>
                                 <input type="text" className="form-control" id="username" name="username" value={login.username} onChange={e => handleOnChange(e.target.name, e.target.value)} />
-                                <div id="emailHelp" className="form-text">We'll never ever over share your email with anyone else.</div>
+                                <div id="emailHelp" className="form-text">We'll <strike>never ever over</strike> share your email with anyone else.</div>
                             </div>
                             <div className="mb-3">
                                 <label htmlFor="password" className="form-label"  >Password</label>

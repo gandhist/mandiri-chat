@@ -7,7 +7,7 @@ import { SOCKET_URL } from '../../../config/api';
 let socket;
 const local = JSON.parse(localStorage.getItem('userlogin'))
 
-const ContentChatting = ({ id, name, picture }) => {
+const ContentChatting = ({ id, name, picture, tipe }) => {
     const messagesEndRef = useRef(null);
     const [listChats, setListChats] = useState([])
     const [message, setMessage] = useState("")
@@ -20,19 +20,22 @@ const ContentChatting = ({ id, name, picture }) => {
 
     useEffect(() => {
         const getListMessage = () => {
-            fetch(`${SOCKET_URL}/api/v1/getChat/${id}`, {
-                method: 'GET',
-                headers: {
-                    'Authorization': `Bearer ${local.token}`,
-                    'Content-Type': 'application/json'
-                }
-            }).then(res => res.json())
-                .then((res) => {
-                    setListChats(res.data)
-                })
-                .catch((err) => {
-                    console.log('err', err)
-                })
+            if(tipe === 'group'){
+                fetch(`${SOCKET_URL}/api/v1/getChat/${id}`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${local.token}`,
+                        'Content-Type': 'application/json'
+                    }
+                }).then(res => res.json())
+                    .then((res) => {
+                        setListChats(res.data)
+                    })
+                    .catch((err) => {
+                        console.log('err', err)
+                    })
+            }
+            
         }
         getListMessage()
         scrollToBottom()
