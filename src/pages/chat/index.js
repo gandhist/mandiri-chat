@@ -4,21 +4,25 @@ import { ContentChatting, ListChat, SearchContact } from '../../components/molec
 import IO from "socket.io-client";
 import { useHistory } from 'react-router';
 import { SOCKET_URL } from '../../config/api';
+import { useToken } from '../../utils';
+
 
 
 let socket;
 const Chat = () => {
     const history = useHistory();
     const local = JSON.parse(localStorage.getItem('userlogin'))
+    const { token } = useToken()
     const [activeChat, setActiveChat] = useState({})
     const [groupList, setGroupList] = useState([])
+    const [newListChats, setNewListChats] = useState({})
     const [showModal, setShowModal] = useState(false)
     useEffect(() => {
         const getListGroup = () => {
             fetch(`${SOCKET_URL}/api/v1/groupList`, {
                 method: 'GET',
                 headers: {
-                    'Authorization': `Bearer ${local.token}`,
+                    'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
                 }
             }).then(res => res.json())
@@ -30,27 +34,33 @@ const Chat = () => {
                 })
         }
         getListGroup()
-    }, [local.token])
+    }, [token])
 
     useEffect(() => {
         socket = IO(SOCKET_URL, {
             auth: {
-                jwtToken: local.token
+                jwtToken: token
             }
         });
-    }, [local])
-
-
-    useEffect(() => {
         socket.on('message', message => {
-            console.log('ini di tab sidebar message nya =>', message)
+            // console.log('ini di tab sidebar message nya =>', message)
+            setNewListChats(message)
         })
         socket.on('connect_error', message => {
             console.log('error connection =>', message)
         })
-        return () => {};
-        // return () => getMessage();
-    }, [])
+
+    }, [token])
+
+    useEffect(() => {
+        // setActiveChat({
+        //     ...activeChat, newChat: newListChats
+        // })
+        setActiveChat(achat => ({ ...achat, newChat: newListChats }))
+        // setListChats(msgs => [...msgs, newChat])
+
+    }, [newListChats])
+
 
     // handle on close modal
     const handleOnModalClose = () => {
@@ -59,7 +69,6 @@ const Chat = () => {
 
     // handle show search contact
     const handleShowSearchContact = () => {
-        console.log('tes')
         setShowModal(true)
     }
 
@@ -71,15 +80,16 @@ const Chat = () => {
 
     // handle onclick lists chats 
     const handleOnClickList = (chat) => {
-        // console.log('you hit this from contacts', chat)
         setActiveChat({
             id: chat.id,
+            room_id: chat.room_id,
             name: chat.name,
             picture: chat.picture,
             tipe: chat.tipe
         })
-        if(showModal) setShowModal(false)
-        
+        socket.emit('joinRoom', { username: local.name, room: chat.room_id, tipe: chat.tipe, targetId: chat.id })
+        if (showModal) setShowModal(false)
+
     }
 
 
@@ -101,7 +111,14 @@ const Chat = () => {
                         <ul>
                             {
                                 groupList.map((item, index) => {
-                                    return <ListChat key={index} onClick={() => handleOnClickList({ id: item.target_id, name: item.name, picture: item.picture, tipe: item.tipe })} isOnline={true} isMe={activeChat.name === item.name ? true : false} picture={item.picture} name={item.name} lastMessage={item.last_message}  />
+                                    let dataSetChat = {
+                                        id: item.target_id,
+                                        room_id: item.room_id,
+                                        name: item.name,
+                                        picture: item.picture,
+                                        tipe: item.tipe
+                                    }
+                                    return <ListChat key={index} onClick={() => handleOnClickList(dataSetChat)} isOnline={true} isMe={activeChat.name === item.name ? true : false} picture={item.picture} name={item.name} lastMessage={item.last_message} />
                                 })
                             }
                         </ul>
@@ -117,7 +134,7 @@ const Chat = () => {
                             {/* belum ada pesan */}
                         </div>
                         :
-                        <ContentChatting name={activeChat.name} picture={activeChat.picture} id={activeChat.id} tipe={activeChat.tipe} />
+                        <ContentChatting name={activeChat.name} picture={activeChat.picture} id={activeChat.id} tipe={activeChat.tipe} room_id={activeChat.room_id} socket={socket} newChat={activeChat.newChat} />
                 }
             </div>
             <SearchContact isShow={showModal} onClose={handleOnModalClose} onClick={handleOnClickList} />

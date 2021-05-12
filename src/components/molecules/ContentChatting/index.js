@@ -1,27 +1,25 @@
 import React, { useEffect, useState, useRef } from 'react'
 import Chatting from "../Chatting";
-import IO from "socket.io-client";
 import { SOCKET_URL } from '../../../config/api';
 
 
-let socket;
+// let socket;
 const local = JSON.parse(localStorage.getItem('userlogin'))
 
-const ContentChatting = ({ id, name, picture, tipe }) => {
+const ContentChatting = ({ id, room_id, name, picture, tipe, socket, newChat }) => {
     const messagesEndRef = useRef(null);
     const [listChats, setListChats] = useState([])
     const [message, setMessage] = useState("")
 
-
     const scrollToBottom = () => {
         const scroll = messagesEndRef.current?.scrollHeight - messagesEndRef.current?.clientHeight;
-        messagesEndRef.current.scrollTo(0, scroll)
+        messagesEndRef.current.scrollTo(10, scroll)
     };
 
     useEffect(() => {
         const getListMessage = () => {
-            if(tipe === 'group'){
-                fetch(`${SOCKET_URL}/api/v1/getChat/${id}`, {
+            if (id !== undefined) {
+                fetch(`${SOCKET_URL}/api/v1/getChat/${tipe}/${id}`, {
                     method: 'GET',
                     headers: {
                         'Authorization': `Bearer ${local.token}`,
@@ -30,40 +28,43 @@ const ContentChatting = ({ id, name, picture, tipe }) => {
                 }).then(res => res.json())
                     .then((res) => {
                         setListChats(res.data)
+                        scrollToBottom()
                     })
                     .catch((err) => {
                         console.log('err', err)
                     })
             }
-            
         }
         getListMessage()
-        scrollToBottom()
-    }, [id])
+    }, [id, tipe])
 
     useEffect(() => {
-        socket = IO(SOCKET_URL, {
-            auth: {
-                jwtToken: local?.token
+        if (typeof newChat === 'object') {
+            if (Object.keys(newChat).length > 0) {
+                // console.log('chat baru object bigger 0', typeof newChat)
+                setListChats(msgs => [...msgs, newChat])
             }
-        });
-        socket.emit('joinRoom', { username: local.name, room: id })
-    }, [id])
-
-    useEffect(() => {
-        socket.on('message', message => {
-            setListChats(msgs => [...msgs, message])
             scrollToBottom()
-        })
-        return () => {};
-        // return () => getMessage();
-    }, [])
+        }
+
+    }, [newChat])
+
+
+
+    // useEffect(() => {
+    //     socket.on('message', message => {
+    //         setListChats(msgs => [...msgs, message])
+    //         scrollToBottom()
+    //     })
+    //     return () => { };
+    //     // return () => getMessage();
+    // }, [])
 
 
 
     const handleSend = (e) => {
         e.preventDefault();
-        socket.emit("chatMessage", { msg: message, username: local.id, room: id }) // emit the message to server
+        socket.emit("chatMessage", { msg: message, username: local.id, room: room_id, tipe, targetId: id }) // emit the message to server
         setMessage("")
         scrollToBottom()
     }
@@ -82,7 +83,13 @@ const ContentChatting = ({ id, name, picture, tipe }) => {
                 <ul>
                     {
                         listChats.map((item, index) => {
-                            const isMe = local.id === parseInt(item.send_by) ? true : false;
+                            let isMe;
+                            if (item.send_by === null) {
+                                isMe = false
+                            }
+                            else {
+                                isMe = local.id === parseInt(item.send_by) ? true : false;
+                            }
                             const myPic = "http://emilcarlsson.se/assets/mikeross.png"
                             return <Chatting key={index} isMe={isMe} picture={isMe ? myPic : picture} message={item.message} time={item.time} />
                         })

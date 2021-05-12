@@ -1,7 +1,6 @@
 import React from 'react'
-import PreviewLink from './PreviewLink'
 
-const PlainText = ({message}) => {
+const PlainText = ({ message }) => {
   return (
     <p>{message}</p>
   )
@@ -10,7 +9,7 @@ const PlainText = ({message}) => {
 
 
 const Chatting = ({ isMe, picture, message, time }) => {
-  const Message = ({message}) => {
+  const Message = ({ message }) => {
     // if(message.includes('http')){
     //   return <PreviewLink link={message} /> 
     // }
@@ -18,10 +17,10 @@ const Chatting = ({ isMe, picture, message, time }) => {
   }
   return (
     <>
-    <li className={isMe ? 'replies' : 'sent'}>
-      {/* <img src={picture} alt="" /> */}
-      <Message message={message} />
-    </li>
+      <li className={isMe ? 'replies' : 'sent'}>
+        {/* <img src={picture} alt="" /> */}
+        <Message message={message} />
+      </li>
       {/* <span>{time}</span> */}
     </>
   )

@@ -1,15 +1,15 @@
 import React, { useState } from 'react'
 import { useHistory } from 'react-router'
-import {API_URL} from '../../config/api';
+import { API_URL } from '../../config/api';
 import useToken from '../../utils/useToken';
 
 
 const Login = () => {
     const history = useHistory()
-    const {setToken} = useToken()
+    const { setToken } = useToken()
 
     const [login, setLogin] = useState({
-        username: 'bollox@gmail.com',
+        username: 'gandhi@email.com',
         password: '123456789'
     })
 
@@ -27,10 +27,10 @@ const Login = () => {
             body: JSON.stringify(login)
         }).then(res => res.json())
             .then((res) => {
-                if(res.status){
+                if (res.status) {
                     setToken(res.data)
                     history.replace('/chat')
-                }else{
+                } else {
                     alert(res.message)
                 }
             })
