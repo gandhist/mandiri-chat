@@ -60,8 +60,9 @@ const Chat = () => {
             }
         });
         socket.on('message', message => {
-            console.log('ini di tab sidebar message nya =>', message)
-            setNewListChats(message)
+            if (message.send_by !== null) {
+                setNewListChats(message)
+            }
         })
         socket.on('connect_error', err => {
             setToast(toast => ({ ...toast, show: true, title: err.name, text: err.message }))
@@ -71,34 +72,33 @@ const Chat = () => {
     }, [token])
 
     useEffect(() => {
-        // setActiveChat({
-        //     ...activeChat, newChat: newListChats
-        // })
+        // check is active chat?
         setActiveChat(achat => ({ ...achat, newChat: newListChats }))
-        if (groupList.length > 0) {
-            // replace array list chat
-            const idx = groupList.findIndex(el => el.room_id === newListChats.room_id)
-            // jika ada indexnya
-            if (idx !== -1) {
-                groupList[idx] = { ...groupList[idx], last_message: newListChats.message }
-            }
-            else {
-                // jika belum ada data
-                fetch(`${SOCKET_URL}/api/v1/groupList`, {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json'
-                    }
-                }).then(res => res.json())
-                    .then((res) => {
-                        setGroupList(res.data)
-                    })
-                    .catch((err) => {
-                        console.log('err', err)
-                    })
-            }
+        // if (groupList.length > 0) {
+        // replace array list chat
+        const idx = groupList.findIndex(el => el.room_id === newListChats.room_id)
+        // jika ada indexnya
+        if (idx !== -1) {
+            groupList[idx] = { ...groupList[idx], last_message: newListChats.message }
+            // setGroupList(groupList)
         }
+        else {
+            // jika belum ada data
+            fetch(`${SOCKET_URL}/api/v1/groupList`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            }).then(res => res.json())
+                .then((res) => {
+                    setGroupList(res.data)
+                })
+                .catch((err) => {
+                    console.log('err', err)
+                })
+        }
+        // }
 
     }, [newListChats])
 
@@ -129,6 +129,9 @@ const Chat = () => {
             tipe: chat.tipe
         })
         socket.emit('joinRoom', { username: local.name, room: chat.room_id, tipe: chat.tipe, targetId: chat.id })
+        if (chat.tipe === 'pc') {
+            socket.emit('joinRoom', { username: local.name, room: chat.id, tipe: chat.tipe, targetId: chat.id })
+        }
         if (showModal) setShowModal(false)
 
     }
@@ -187,7 +190,7 @@ const Chat = () => {
                     </div>
                 </div>
                 {
-                    Object.keys(activeChat).length === 0 ?
+                    Object.keys(activeChat).length === 0 || activeChat.hasOwnProperty('id') === false ?
                         <div className="content">
                             {/* belum ada pesan */}
                         </div>
