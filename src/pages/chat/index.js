@@ -16,6 +16,11 @@ const Chat = () => {
     const [activeChat, setActiveChat] = useState({})
     const [groupList, setGroupList] = useState([])
     const [newListChats, setNewListChats] = useState({})
+    const [toast, setToast] = useState({
+        show: false,
+        title: "",
+        text: "",
+    })
     const [showModal, setShowModal] = useState(false)
     useEffect(() => {
         const getListGroup = () => {
@@ -36,6 +41,18 @@ const Chat = () => {
         getListGroup()
     }, [token])
 
+    const tryReconnect = () => {
+        setTimeout(() => {
+            socket.io.open((err) => {
+                if (err) {
+                    console.log('err', err)
+                    tryReconnect();
+                }
+                setToast(toast => ({ ...toast, show: false, title: err.name, text: err.message }))
+            });
+        }, 10000);
+    }
+
     useEffect(() => {
         socket = IO(SOCKET_URL, {
             auth: {
@@ -43,11 +60,12 @@ const Chat = () => {
             }
         });
         socket.on('message', message => {
-            // console.log('ini di tab sidebar message nya =>', message)
+            console.log('ini di tab sidebar message nya =>', message)
             setNewListChats(message)
         })
-        socket.on('connect_error', message => {
-            console.log('error connection =>', message)
+        socket.on('connect_error', err => {
+            setToast(toast => ({ ...toast, show: true, title: err.name, text: err.message }))
+            tryReconnect();
         })
 
     }, [token])
@@ -57,7 +75,30 @@ const Chat = () => {
         //     ...activeChat, newChat: newListChats
         // })
         setActiveChat(achat => ({ ...achat, newChat: newListChats }))
-        // setListChats(msgs => [...msgs, newChat])
+        if (groupList.length > 0) {
+            // replace array list chat
+            const idx = groupList.findIndex(el => el.room_id === newListChats.room_id)
+            // jika ada indexnya
+            if (idx !== -1) {
+                groupList[idx] = { ...groupList[idx], last_message: newListChats.message }
+            }
+            else {
+                // jika belum ada data
+                fetch(`${SOCKET_URL}/api/v1/groupList`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                }).then(res => res.json())
+                    .then((res) => {
+                        setGroupList(res.data)
+                    })
+                    .catch((err) => {
+                        console.log('err', err)
+                    })
+            }
+        }
 
     }, [newListChats])
 
@@ -90,6 +131,23 @@ const Chat = () => {
         socket.emit('joinRoom', { username: local.name, room: chat.room_id, tipe: chat.tipe, targetId: chat.id })
         if (showModal) setShowModal(false)
 
+    }
+
+    const Toast = ({ showToast, title, text }) => {
+        return (
+            <div className="position-fixed position-absolute p-3 top-50 start-50 translate-middle" style={{ zIndex: 5 }}>
+                <div id="liveToast" className={`toast ${showToast ? 'show' : 'hide'}`} role="alert" aria-live="assertive" aria-atomic="true">
+                    <div className="toast-header">
+                        <strong className="me-auto">{title}</strong>
+                        <small>Just Now</small>
+                        <button type="button" className="btn-close" data-bs-dismiss="toast" aria-label="Close" />
+                    </div>
+                    <div className="toast-body">
+                        {text}
+                    </div>
+                </div>
+            </div>
+        )
     }
 
 
@@ -138,6 +196,8 @@ const Chat = () => {
                 }
             </div>
             <SearchContact isShow={showModal} onClose={handleOnModalClose} onClick={handleOnClickList} />
+            <Toast showToast={toast.show} text={toast.text} title={toast.title} />
+
         </div>
     )
 }
