@@ -7,7 +7,6 @@ import { SOCKET_URL } from '../../config/api';
 import { useToken } from '../../utils';
 
 
-
 let socket;
 const Chat = () => {
     const history = useHistory();
@@ -161,7 +160,7 @@ const Chat = () => {
                     <div id="profile">
                         <div className="wrap">
                             <img id="profile-img" src={local.picture} className="online" alt="" />
-                            <p>{local.name.toUpperCase()}</p>
+                            <p>{local.name}</p>
                         </div>
                     </div>
                     <div id="search">

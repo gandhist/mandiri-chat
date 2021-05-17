@@ -14,7 +14,7 @@ const SearchContact = ({ isShow, onClose, onClick }) => {
             method: 'GET',
         }).then(res => res.json())
             .then((res) => {
-                setContacts(res.data)
+                setContacts(res.data.filter((contact => contact.id !== 1)))
             })
             .catch((err) => {
                 console.log('err', err)
@@ -64,7 +64,7 @@ const SearchContact = ({ isShow, onClose, onClick }) => {
                 )
             }
             else {
-                return <div>Tidak ada data</div>
+                return <div>Belum Ada Kontak</div>
             }
         }
         else {
@@ -90,7 +90,7 @@ const SearchContact = ({ isShow, onClose, onClick }) => {
                 )
             }
             else {
-                return <div>Tidak ada data</div>
+                return <div>Belum Ada Kontak</div>
             }
         }
     }

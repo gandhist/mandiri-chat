@@ -1,6 +1,8 @@
 import React, { useEffect, useState, useRef } from 'react'
 import Chatting from "../Chatting";
 import { SOCKET_URL } from '../../../config/api';
+import { EditorState, Editor } from "draft-js";
+
 
 
 // let socket;
@@ -10,6 +12,8 @@ const ContentChatting = ({ id, room_id, name, picture, tipe, socket, newChat }) 
     const messagesEndRef = useRef(null);
     const [listChats, setListChats] = useState([])
     const [message, setMessage] = useState("")
+    const [editors, setEditors] = useState(() => EditorState.createEmpty())
+
 
     const scrollToBottom = () => {
         const scroll = messagesEndRef.current?.scrollHeight - messagesEndRef.current?.clientHeight;
@@ -99,6 +103,7 @@ const ContentChatting = ({ id, room_id, name, picture, tipe, socket, newChat }) 
             <div className="message-input">
                 <div className="wrap">
                     <form onSubmit={handleSend} >
+                    <Editor editorState={editors} onChange={setEditors} />
                         <input type="text" placeholder="Write your message..." value={message} onChange={(e) => setMessage(e.target.value)} />
                         <i className="fa fa-paperclip attachment" aria-hidden="true" />
                         <button className="submit" >
