@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from 'react'
 import Chatting from "../Chatting";
 import { SOCKET_URL } from '../../../config/api';
 import { EditorState, Editor } from "draft-js";
+import background from "../../../assets/photography.png";
 
 
 
@@ -73,7 +74,7 @@ const ContentChatting = ({ id, room_id, name, picture, tipe, socket, newChat }) 
         scrollToBottom()
     }
     return (
-        <div className="content">
+        <div className="content" style={{ backgroundImage: `url(${background})` }}>
             <div className="contact-profile">
                 <img src={picture} alt="" />
                 <p>{name}</p>

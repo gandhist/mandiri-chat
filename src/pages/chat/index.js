@@ -5,6 +5,7 @@ import IO from "socket.io-client";
 import { useHistory } from 'react-router';
 import { SOCKET_URL } from '../../config/api';
 import { useToken } from '../../utils';
+import background from "../../assets/photography.png";
 
 
 let socket;
@@ -190,7 +191,7 @@ const Chat = () => {
                 </div>
                 {
                     Object.keys(activeChat).length === 0 || activeChat.hasOwnProperty('id') === false ?
-                        <div className="content">
+                        <div className="content" style={{ backgroundImage: `url(${background})` }}>
                             {/* belum ada pesan */}
                         </div>
                         :
