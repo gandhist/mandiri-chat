@@ -1,16 +1,19 @@
 import React, { useState } from 'react'
-import { useHistory } from 'react-router'
+import { useHistory, useLocation } from 'react-router'
+import { Link } from 'react-router-dom';
 import { API_URL } from '../../config/api';
 import useToken from '../../utils/useToken';
 
 
-const Login = () => {
+const Login = (props) => {
+    const lokation = useLocation();
+    const { email, password } = lokation.state
     const history = useHistory()
     const { setToken } = useToken()
 
     const [login, setLogin] = useState({
-        username: 'gandhi@email.com',
-        password: '123456789'
+        username: email,
+        password: password
     })
 
     const handleOnChange = (key, value) => {
@@ -55,7 +58,10 @@ const Login = () => {
                                 <label htmlFor="password" className="form-label"  >Password</label>
                                 <input type="password" className="form-control" id="password" name="password" value={login.password} onChange={e => handleOnChange(e.target.name, e.target.value)} />
                             </div>
-                            <button type="submit" onClick={handleLogin} className="btn btn-primary">Submit</button>
+                            <div className="d-flex justify-content-evenly">
+                                <button type="submit" onClick={handleLogin} className="btn btn-primary">Sign In</button>
+                                <Link to="/register" className="link-info">Join us</Link>
+                            </div>
                         </form>
                     </div>
                 </div>

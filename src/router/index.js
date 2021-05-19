@@ -1,7 +1,7 @@
 import React from 'react'
 import { Route, Switch, Redirect } from 'react-router';
 import App from '../App';
-import { Login, Chat } from "../pages";
+import { Login, Chat, Register } from "../pages";
 import useToken from '../utils/useToken';
 
 // A wrapper for <Route> that redirects to the login
@@ -31,6 +31,9 @@ const Routes = () => {
             </Route>
             <Route path="/login" >
                 <Login />
+            </Route>
+            <Route path="/register" >
+                <Register />
             </Route>
             <PrivateRoute path="/chat">
                 <Chat />
