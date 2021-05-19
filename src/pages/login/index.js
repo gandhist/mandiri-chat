@@ -5,15 +5,15 @@ import { API_URL } from '../../config/api';
 import useToken from '../../utils/useToken';
 
 
-const Login = (props) => {
-    const lokation = useLocation();
-    const { email, password } = lokation.state
+const Login = () => {
+    // const lokation = useLocation();
+    // const { email, password } = lokation.state
     const history = useHistory()
     const { setToken } = useToken()
 
     const [login, setLogin] = useState({
-        username: email,
-        password: password
+        username: '',
+        password: ''
     })
 
     const handleOnChange = (key, value) => {
